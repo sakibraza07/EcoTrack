@@ -1,0 +1,30 @@
+services:
+  # ── Backend (FastAPI) ──────────────────────────────────────────────────
+  - type: web
+    name: ecotrack-backend
+    runtime: python
+    rootDir: Backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: MONGO_URI
+        sync: false          # You will paste this in Render dashboard
+      - key: MONGO_DB
+        value: ecotrack
+      - key: SECRET_KEY
+        generateValue: true  # Render auto-generates a secure key
+
+  # ── Frontend (React/Vite) ──────────────────────────────────────────────
+  - type: web
+    name: ecotrack-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false          # Paste your backend URL after it's deployed
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
